@@ -1,158 +1,238 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8"/>
-        <title>[ Zeinalipour | Extended Biography ]</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickBioLink</title>
+    <link rel="icon" type="image/ico" href="">
+    <link rel="shortcut icon" type="image/ico" href="">
+    <meta id="ogTitle" property="og:title" content="Bio Links" />
+    <meta id="ogSiteName" property="og:site_name" content="" />
+    <meta id="ogDesc" property="og:description" content="My social and web links." />
+    <meta id="themeColor" name="theme-color" content="#000000">
+</head>
+<body>
+    <script>
+        // EDIT SETTINGS HERE:
 
-        <!-- Font Awesome Icons -->
-        <link rel="stylesheet" href="css/font-awesome.min.css"/>
+        /*
+        * NOTICE: Gravatar auto removes link information down to just the domain.
+        * That means that if you put https://github.com/mackenly/ it will cut it to
+        * https://github.com/ There isn't a current work around and may be simply
+        * a short coming of using Gravatar for profile data.
+        */
 
-        <!-- Bootstrap -->
-        <link href="css/bootstrap.min.css" rel="stylesheet"/>
-        <!--<link href="css/bootstrap.min.css" rel="stylesheet">-->
+        /*
+        * Set to true to hide credit text, set to false to display credit text.
+        * The credit is a short link to the Github repo of this project.
+        */
+        var disableCredit = false;
 
-        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-        <!--[if lt IE 9]>
-         <script src="js/html5shiv.js"></script>
-         <script src="js/respond.min.js"></script>
-         <![endif]-->
+        /*
+        * To tell gravatar where to look for your data you must provide a MD5 hash of your
+        * primary email address. To hash your email you can use something like:
+        * https://www.md5hashgenerator.com/ (not verified for security)
+        * 
+        * OR you can just enter your email below. For security purposes you may rather enter a hash
+        * of your email instead. Note, that if you use the hash method you should set showEmailLink to false.
+        */
+        var emailAddress = "hello@example.com";
 
+        /*
+        * Choose to show an email link button at the end of the link list.
+        * Note, if you use an MD5 hash rather than plaintext email in emailAddress 
+        * you should disable this option.
+        */
+        var showEmailLink = true;
 
-        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-        <script src="js/jquery.min.js"></script>
-        <!-- Include all compiled plugins (below), or include individual files as needed -->
-        <script src="js/bootstrap.min.js"></script>
-        <script src="js/menucollapse.js"></script>
-        <script type="text/javascript" src="js/arrow78.js"></script>
-        <script type="text/javascript" src="js/custom.js"></script>
+        /*
+        * Create Custom Links
+        * Add links to customLinks following the example format.
+        * Links added here will display above the email button but below links brought in from Gravatar.
+        * 
+        * The domain field is used for getting a favicon icon if useEmojiIcon is set to false.
+        * If useEmojiIcon is true, the list item icon will be whatever emoji (or other text) is in the emojiIcon field.
+        */
+        const customLinks = {
+            "links":[
+                {
+                    "label": "GitHub - @mackenly",
+                    "url": "https://github.com/mackenly/",
+                    "domain": "https://github.com",
+                    "useEmojiIcon": false,
+                    "emojiIcon": ""
+                },
+                {
+                    "label": "Schedule a 15-minute Meeting",
+                    "url": "https://calendly.com",
+                    "domain": "",
+                    "useEmojiIcon": true,
+                    "emojiIcon": "📆"
+                }
+            ]
+        }
+    </script>
+    <main>
+        <p id="loading">Loading...</p>
+        <img id="profileImage">
+        <h1 id="formattedName"></h1>
+        <p id="location"></p>
+        <p id="aboutBio"></p>
+        <div id="socials"></div>
+        <p id="credit"></p>
+    </main>
+    <script>
+        // Define variables
+        var userProfile;
 
-        <body id="page-top" class="index">
+        // Get information from gravatar:
+        fetch( 'https://en.gravatar.com/' + emailAddress + '.json' )
+            .then( response => response.json() )
+            .then( response => {
+                userProfile = response["entry"][0];
+                // Uncomment below to see what all data you can use:
+                //console.log(userProfile)
 
-            <!-- Navigation -->
-            <nav class="navbar navbar-default navbar-fixed-top">
-                <div class="container-fluid">
-                    <!-- Brand and toggle get grouped for better mobile display -->
-                    <div class="navbar-header">
-                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"  data-target="#bs-example-navbar-collapse-2" aria-expanded="false">
-                            <span class="sr-only">Toggle navigation</span>
-                            <span class="glyphicon glyphicon-search"></span>
-                        </button>
-                        <button id="button2" type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                            <span class="sr-only">Toggle navigation</span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                        <span><a href="#"><img border="0" width="170" src="images/csucy.png"/></a></span>
-                    </div>
+                // Update various elements:
+                document.getElementById("loading").style = "display: none;"
+                document.querySelector("link[rel='shortcut icon']").href = userProfile["thumbnailUrl"] + ".ico";
+                document.querySelector("link[rel*='icon']").href = userProfile["thumbnailUrl"] + ".ico";
+                document.querySelector("title").innerHTML = userProfile["displayName"] + " | Link Page";
+                document.getElementById("ogTitle").content = userProfile["displayName"] + " | Link Page";
+                document.getElementById("ogSiteName").content = window.location.hostname;
+                document.getElementById("ogDesc").content = userProfile["displayName"] + "'s social and web links."
+                document.getElementById("themeColor").content = userProfile["profileBackground"]["color"]
+                document.getElementById("profileImage").src = userProfile["thumbnailUrl"]
+                document.getElementById("profileImage").alt = userProfile["displayName"] + "\'s Profile Picture"
+                document.getElementById("formattedName").innerHTML = userProfile["name"]["formatted"]
+                document.getElementById("location").innerHTML = userProfile["currentLocation"]
+                document.getElementById("aboutBio").innerHTML = userProfile["aboutMe"]
+                document.getElementsByTagName("body")[0].style = "background-image: url('" + userProfile["profileBackground"]["url"] + "'); background-color: " + userProfile["profileBackground"]["color"] + "; background-size: fill; background-position: center; background-repeat: no-repeat;"
 
-                    <!-- Collect the nav links, forms, and other content for toggling -->
-                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                        <ul class="nav navbar-nav navbar-right">
-                            <li class="dropdown">
-                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                    Home<span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="index.html#intro">Introduction</a></li>
-                                    <li><a href="bio.html">Biography</a></li>
-                                    <li><a href="cv.html">CV (Web)</a></li>
-                                    <li><a target="_blank" href="zeinalipour.pdf">CV (PDF)</a></li>
-                                </ul>
-                            </li>
-                            <li class="page-scroll">
-                                <a href="index.html#news">News</a>
-                            </li>
-                            <li class="dropdown">
-                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                    Publications<span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li><a onclick="javascript:reset_menus();$('#tab-3-content').show();" href="index.html#publications">Selected</a></li>
-                                    <li><a href="publications/">All</a></li>
-                                </ul>
-                            </li>
-                            <li class="page-scroll">
-                                <a href="talks/">Talks</a>
-                            </li>
-                            <li class="page-scroll">
-                                <a href="index.html#courses">Courses</a>
-                            </li>
-                            <li class="page-scroll">
-                                <a href="index.html#awards">Awards</a>
-                            </li>
-                            <li class="page-scroll">
-                                <a href="index.html#service">Service</a>
-                            </li>
-                            <li class="page-scroll">
-                                <a href="index.html#advising">Advising</a>
-                            </li>
-                            <li class="page-scroll">
-                                <a target="_blank" href="http://dmsl.cs.ucy.ac.cy/projects.php">Grants</a>
-                            </li>
+                // Render socials and URLs:
+                var socialsFill = "";
+                for (var i = 0; i < userProfile["accounts"].length; i++) {
+                    socialsFill = socialsFill + "<a rel='noopener' href='" + userProfile["accounts"][i]["url"] + "' target='_blank'><li><img src='https://" + userProfile["accounts"][i]["domain"] + "/favicon.ico' alt='" + userProfile["accounts"][i]["shortname"] + " Icon'" + "><p>" + userProfile["accounts"][i]["display"] + "</p></li></a>"
+                }
+                for (var i = 0; i < userProfile["urls"].length; i++) {
+                    socialsFill = socialsFill + "<a rel='noopener' href='" + userProfile["urls"][i]["value"] + "' target='_blank'><li><img src='" + userProfile["urls"][i]["value"] + "/favicon.ico' alt='" + userProfile["urls"][i]["title"] + " Icon'" + "><p>" + userProfile["urls"][i]["title"] + "</p></li></a>"
+                }
+                for (var i = 0; i < customLinks["links"].length; i++) {
+                    socialsFill = socialsFill + "<a rel='noopener' href='" + customLinks["links"][i]["url"] + "' target='_blank'><li>"
+                    if (customLinks["links"][i]["useEmojiIcon"] == true) {
+                        socialsFill = socialsFill + "<p id='emojiIcon'>" + customLinks["links"][i]["emojiIcon"] + "</p>";
+                    } else if (customLinks["links"][i]["useEmojiIcon"] == false) {
+                        socialsFill = socialsFill + "<img src='" + customLinks["links"][i]["domain"] + "/favicon.ico' alt='" + customLinks["links"][i]["label"] + " Icon'>"
+                    }
+                    socialsFill = socialsFill + "<p>" + customLinks["links"][i]["label"] + "</p></li></a>"
+                }
+                if (showEmailLink == true) {
+                    socialsFill = socialsFill + "<a rel='noopener' href='mailto:" + emailAddress + "' target='_blank '><li><p>✉ Email Me</p></li>"
+                }
+                document.getElementById("socials").innerHTML = "<ul>" + socialsFill + "</ul>";
+                document.getElementById("credit").style = "display: inherit;"
+        } ).catch((error) => {
+            // Only network error comes here
+            document.getElementById("loading").innerHTML = "Error: Unable to get Gravatar data."
+            document.getElementById("credit").style = "display: none;"
+            });
 
-                            <li class="page-scroll">
-                                <a href="index.html#contact">Contact</a>
-                            </li>
-                            <li class="page-scroll">
-                                <a onclick="$('#bs-example-navbar-collapse-2').toggle();">
-                                    <span class="glyphicon glyphicon-search"></span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div><!-- /.navbar-collapse -->
+        // Disable credit text based on settings
+        if (disableCredit == true) {
+            document.getElementById("credit").style = "display: none;"
+        } else {
+            document.getElementById("credit").innerHTML = "<a rel='noopener' href='https://github.com/mackenly/quickbiolinks' target='_blank'>Built with QuickBioLinks</a>"
+        }
+    </script>
+    <style>
+        body {
+            background-color: black;
+        }
 
-                    <!-- search box submenu -->
-                    <div class="collapse" id="bs-example-navbar-collapse-2">
-                        <gcse:search></gcse:search>
-                    </div>
+        #loading {
+            padding-top: 45vh;
+        }
 
-                </div><!-- /.container-fluid -->
-            </nav>
+        #profileImage {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 8vh;
+            border-radius: 50%;
+            width: initial;
+        }
 
-            <section>
-                <!-- Place this tag where you want the search results to render -->
-                <gcse:searchresults-only></gcse:searchresults-only>
-            </section>
+        h1, #loading {
+            color: white;
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 1.2rem;
+        }
 
-            <section id="tree" style="margin-top:50px">
-                <div class="container">
-                    <a href="index.html">Zeinalipour</a> > Biography
-                </div>
-            </section>
+        #location {
+            color: rgba(255, 255, 255, 0.733);
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 0.8rem;
+            padding-bottom: 3vh;
+        }
 
+        #aboutBio {
+            color: white;
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 1rem;
+            margin-left: 8%;
+            margin-right: 8%;
+        }
 
-            <!-- Home Section -->
-            <section id="home">
-                <div class="container lead">
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            margin-top: 8vh;
+            margin-bottom: 3vh;
+        }
 
-                    <h3>Biography of Demetris Zeinalipour</h3>
+        li {
+            background-color: rgba(121, 121, 121, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2%;
+            width: min(500px, 100%);
+            margin-left: auto;
+            margin-right: auto;
+        }
 
-                    <p>Demetris Zeinalipour is an Associate Professor of Computer Science at the University of Cyprus, where he leads the Data Management Systems Laboratory (DMSL).  His primary research interests include Data Management in Computer Systems and Networks, particularly Mobile and Sensor Data Management; Big Data Management in Parallel and Distributed Architectures; Spatio-Temporal Data Management; Network and Telco Data Management; Crowd, Web 2.0 and Indoor Data Management; Data Privacy Management. He holds a Ph.D. in Computer Science from University of California - Riverside (2005). Before his current appointment, he served the University of Cyprus as an Assistant Professor and Lecturer but also the Open University of Cyprus as a Lecturer.  He has held visiting research appointments at Akamai Technologies, Cambridge, MA, USA, the University of Athens, Greece, the University of Pittsburgh, PA, USA and the Max Planck Institute for Informatics, Saarbrücken, Germany. He is a Humboldt Fellow, Marie-Curie Fellow, an ACM Distinguished Speaker (2017-2020), a Senior Member of ACM, a Senior Member of IEEE and a Member of USENIX. He serves on the editorial board of Distributed and Parallel Databases (Elsevier), Big Data Research (Springer) and is an independent evaluator for the European Commission (Marie Skłodowska-Curie and COST actions). His h-index is 24, holds over 2600 citations, has an Erdös number of 3, won 10 international awards (ACMD17, ACMS16, IEEES16, HUMBOLDT16, IPSN14, EVARILOS14, APPCAMPUS13, MDM12, MC07, CIC06) and delivered over 30 invited talks. He has participated in over 20 projects funded by the US National Science Foundation, by the European Commission, the Cyprus Research Promotion Foundation, the Univ. of Cyprus, the Open University of Cyprus and the Alexander von Humboldt Foundation, Germany. Finally, he has also been involved in industrial Research and Development projects (e.g., Finland, Taiwan and Cyprus) and has technically lead several mobile data management services (e.g., Anyplace, Rayzit and Smartlab) reaching over 35K users worldwide with over 140K sessions.
-                    </p>
-                    <p>
-                    For more information please visit: <a href="http://www.cs.ucy.ac.cy/%7Edzeina/">http://www.cs.ucy.ac.cy/~dzeina/</a> or the DMSL website: <a href="http://dmsl.cs.ucy.ac.cy/">http://dmsl.cs.ucy.ac.cy/</a><br>
-                    </p>
-                </div>
-                </div>
-            </section>
+        li img {
+            vertical-align: baseline;
+            width: 24px;
+        }
 
-            <hr class="star-primary">
-            <footer>
-                <small>
-                    <center>
-                        © 2016 | D. Zeinalipour. Credits: AR template
-                        <a onclick="javascript:$('#credit').toggle();"><img border="0" src="images/ccby.png"/></a>
-                        <div style="display:none;" id="credit">[AR template available under Creative Commons CC BY 4.0 licence:
-                            <a href="https://github.com/dmsl/academic-responsive-template" target="_blank">
-                                https://github.com/dmsl/academic-responsive-template
-                            </a> ]
-                        </div>
-                    </center>
-                </small>
-            </footer>
-            
-        </body>
-        
-        </html>
+        li p {
+            display: block;
+            color: white;
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 1rem;
+            margin-left: 6px;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        #credit {
+            display: none;
+            color: rgba(255, 255, 255, 0.733);
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: 700;
+            font-size: 0.7rem;
+        }
+    </style>
+</body>
+</html>
